@@ -81,11 +81,18 @@ class VKAPIClient:
     def get_photos(self):
         """
         Запрос фотографий профиля.
+        Возвращает список фотографий размера 'w'
         :return:
         """
+        photos = []
         params = self.get_common_params()
         params.update({'owner_id': self.user_id,
                        'album_id': 'profile'})
         response = requests.get(
             self._build_url('photos.get'), params=params)
-        return response.json()
+        list_photos = response.json().get('response', {}).get('items')
+        for item in list_photos:
+            for size in item.get('sizes', {}):
+                if size['type'] == 'w':
+                    photos.append(size.get('url'))
+        return photos
