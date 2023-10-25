@@ -1,4 +1,7 @@
+from pprint import pprint
+from tqdm import tqdm
 import requests
+from time import sleep
 
 
 class VKAPIClient:
@@ -28,6 +31,7 @@ class VKAPIClient:
     def get_status(self):
         """
         Возвращает Статус пользователя ВК
+
         :return:
         """
         params = self.get_common_params()
@@ -39,6 +43,7 @@ class VKAPIClient:
     def set_status(self, new_status):
         """
         Устанавливает новый статус пользователя ВК
+
         :param new_status:
         :return:
         """
@@ -74,9 +79,7 @@ class VKAPIClient:
         name = response.json().get('response', {})[0].get('first_name')
         last_name = response.json().get('response', {})[0].get('last_name')
         ids = response.json().get('response', {})[0].get('id')
-        return (f'Имя: {name} \n'
-                f'Фамилия: {last_name} \n'
-                f'ID: {ids}')
+        return {'name': name, 'last_name': last_name, 'ID': ids}
 
     def get_photos(self):
         """
@@ -87,12 +90,27 @@ class VKAPIClient:
         photos = []
         params = self.get_common_params()
         params.update({'owner_id': self.user_id,
-                       'album_id': 'profile'})
+                       'album_id': 'profile',
+                       'extended': 1})
         response = requests.get(
             self._build_url('photos.get'), params=params)
         list_photos = response.json().get('response', {}).get('items')
-        for item in list_photos:
-            for size in item.get('sizes', {}):
-                if size['type'] == 'w':
-                    photos.append(size.get('url'))
-        return photos
+        print(f'В данное время у Вас {len(list_photos)} фотографий.')
+        while True:
+            count = int(input('Сколько фотографий будем сохранять?: '))
+            if count > len(list_photos):
+                print('У Вас нет столько фотографий. Будьте скромнее. :)')
+                continue
+            else:
+                for item in tqdm(list_photos[:count]):
+                    sleep(0.2)
+                    likes = item.get('likes').get('count')
+                    data = item.get('date')
+                    for size in item.get('sizes', {}):
+                        if size['type'] == 'w':
+                            photos.append({'name': str(likes) + '.jpeg',
+                                           'likes': likes,
+                                           'date': data,
+                                           'url': size.get('url')})
+
+            return photos

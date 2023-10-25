@@ -69,6 +69,7 @@ class YAAPIClient:
         params.update({'path': f'{directory}/{file}'})
         response = requests.get(self.Base_url + 'resources/upload', params=params, headers=self.get_common_headers())
         url_to_upload = response.json().get('href')
+        # name_file =
         with open(file, 'rb') as f:
             response = requests.put(url_to_upload, files={'file': f})
-        return 'Файл успешно загружен' if response.status_code == 201 else "Что-то пошло не так!"
+        return f'Файл успешно загружен' if response.status_code == 201 else "Что-то пошло не так!"
