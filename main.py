@@ -2,8 +2,9 @@ from time import sleep
 from urllib.parse import urlencode
 import os
 import requests
-from VK_API import VKAPIClient
-from Yandex_API import YAAPIClient
+from vk_api import VKAPIClient
+from yandex_api import (YAAPIClient)
+
 
 # user_id =
 
