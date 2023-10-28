@@ -1,4 +1,3 @@
-from pprint import pprint
 from tqdm import tqdm
 import requests
 from time import sleep
@@ -81,7 +80,7 @@ class VKAPIClient:
         ids = response.json().get('response', {})[0].get('id')
         return {'name': name, 'last_name': last_name, 'ID': ids}
 
-    def get_photos(self):
+    def get_photos_list(self):
         """
         Запрос фотографий профиля.
         Возвращает список фотографий размера 'w'
@@ -103,7 +102,7 @@ class VKAPIClient:
                 continue
             else:
                 for item in tqdm(list_photos[:count]):
-                    sleep(0.2)
+                    sleep(0.1)
                     likes = item.get('likes').get('count')
                     data = item.get('date')
                     for size in item.get('sizes', {}):
@@ -114,3 +113,10 @@ class VKAPIClient:
                                            'url': size.get('url')})
 
             return photos
+
+    def get_content(self, url):
+        params = self.get_common_params()
+        response = requests.get(url, params=params)
+        with open('file.jpeg', 'wb') as f:
+            f.write(response.content)
+        return f

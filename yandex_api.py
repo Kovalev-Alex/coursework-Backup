@@ -5,7 +5,7 @@ class YAAPIClient:
     """
     Access to YandexDisk
     """
-    Base_url = 'https://cloud-api.yandex.net/v1/disk/'
+    BASE_URL = 'https://cloud-api.yandex.net/v1/disk/'
 
     def __init__(self, token):
         self.token = token
@@ -25,7 +25,7 @@ class YAAPIClient:
         Отображает использование диска
         :return:
         """
-        response = requests.get(self.Base_url, headers=self.get_common_headers())
+        response = requests.get(self.BASE_URL, headers=self.get_common_headers())
         total_space = response.json()['total_space']/1024/1024/1024
         used_space = response.json()['used_space']/1024/1024/1024
         return (
@@ -45,7 +45,7 @@ class YAAPIClient:
         list_dirs = []
         params = self.get_common_params()
         params.update({'path': target})
-        list_dir = requests.get(self.Base_url + 'resources', params=params,
+        list_dir = requests.get(self.BASE_URL + 'resources', params=params,
                                 headers=self.get_common_headers())
         for item in list_dir.json().get('_embedded', {}).get('items', {}):
             list_dirs.append(item.get('name'))
@@ -54,7 +54,7 @@ class YAAPIClient:
     def create_dir(self, directory):
         params = self.get_common_params()
         params.update({'path': directory})
-        requests.put(self.Base_url + 'resources', params=params, headers=self.get_common_headers())
+        requests.put(self.BASE_URL + 'resources', params=params, headers=self.get_common_headers())
         return f'Папка {directory} создана'
 
     def upload_file(self, directory, file):
@@ -64,10 +64,9 @@ class YAAPIClient:
         :param file: Имя файла
         :return:
         """
-        self.create_dir(directory)
         params = self.get_common_params()
         params.update({'path': f'{directory}/{file}'})
-        response = requests.get(self.Base_url + 'resources/upload', params=params, headers=self.get_common_headers())
+        response = requests.get(self.BASE_URL + 'resources/upload', params=params, headers=self.get_common_headers())
         url_to_upload = response.json().get('href')
         with open(file, 'rb') as f:
             response = requests.put(url_to_upload, files={'file': f})
